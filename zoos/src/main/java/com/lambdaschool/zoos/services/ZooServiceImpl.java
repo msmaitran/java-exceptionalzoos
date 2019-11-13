@@ -1,5 +1,8 @@
 package com.lambdaschool.zoos.services;
 
+import com.lambdaschool.zoos.exceptions.ResourceFoundException;
+import com.lambdaschool.zoos.exceptions.ResourceNotFoundException;
+import com.lambdaschool.zoos.logging.Loggable;
 import com.lambdaschool.zoos.models.Telephone;
 import com.lambdaschool.zoos.models.Zoo;
 import com.lambdaschool.zoos.repository.AnimalRepository;
@@ -8,11 +11,11 @@ import com.lambdaschool.zoos.views.ZooCountTelephones;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Loggable
 @Service(value = "zooService")
 public class ZooServiceImpl implements ZooService {
 
@@ -39,14 +42,14 @@ public class ZooServiceImpl implements ZooService {
     @Override
     public Zoo findZooById(long id) {
         return zoorepos.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Zoo id " + id + " not found!"));
+                new ResourceNotFoundException("Zoo id " + id + " not found!"));
     }
 
     @Transactional
     @Override
     public Zoo save(Zoo zoo) {
         if (zoorepos.findByZooname(zoo.getZooname()) != null) {
-            throw new EntityNotFoundException(zoo.getZooname() + " is already taken!");
+            throw new ResourceFoundException(zoo.getZooname() + " is already taken!");
         }
         Zoo newZoo = new Zoo();
         newZoo.setZooname(zoo.getZooname());
@@ -75,7 +78,7 @@ public class ZooServiceImpl implements ZooService {
     @Override
     public void delete(long id) {
         zoorepos.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Zoo id " + id + "not found!"));
+                new ResourceNotFoundException("Zoo id " + id + "not found!"));
         zoorepos.deleteById(id);
     }
 
@@ -87,22 +90,22 @@ public class ZooServiceImpl implements ZooService {
     @Override
     public void addZooAnimal(long zooid, long animalid) {
         zoorepos.findById(zooid).orElseThrow(() ->
-                new EntityNotFoundException("Zoo id " + zooid + " not found!"));
+                new ResourceNotFoundException("Zoo id " + zooid + " not found!"));
         animalrepos.findById(animalid).orElseThrow(() ->
-                new EntityNotFoundException("Animal id " + animalid + " not found!"));
+                new ResourceNotFoundException("Animal id " + animalid + " not found!"));
         if (animalrepos.checkZooAnimalCombo(zooid, animalid).getCount() <= 0) {
             animalrepos.insertZooanimal(zooid, animalid);
-        } else throw new EntityNotFoundException("Zoo and Animal Combination Already Exists");
+        } else throw new ResourceFoundException("Zoo and Animal Combination Already Exists");
     }
 
     @Override
     public void deleteZooAnimal(long zooid, long animalid) {
         zoorepos.findById(zooid).orElseThrow(() ->
-                new EntityNotFoundException("Zoo id " + zooid + " not found!"));
+                new ResourceNotFoundException("Zoo id " + zooid + " not found!"));
         animalrepos.findById(animalid).orElseThrow(() ->
-                new EntityNotFoundException("Animal id " + animalid + " not found!"));
+                new ResourceNotFoundException("Animal id " + animalid + " not found!"));
         if (animalrepos.checkZooAnimalCombo(zooid, animalid).getCount() > 0) {
             animalrepos.deleteZooAnimals(zooid, animalid);
-        } else throw new EntityNotFoundException("Zoo and Animal Combination Does Not Exist");
+        } else throw new ResourceFoundException("Zoo and Animal Combination Does Not Exist");
     }
 }

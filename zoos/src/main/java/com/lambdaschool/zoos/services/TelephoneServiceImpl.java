@@ -1,14 +1,16 @@
 package com.lambdaschool.zoos.services;
 
+import com.lambdaschool.zoos.exceptions.ResourceNotFoundException;
+import com.lambdaschool.zoos.logging.Loggable;
 import com.lambdaschool.zoos.models.Telephone;
 import com.lambdaschool.zoos.repository.TelephoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Loggable
 @Service
 public class TelephoneServiceImpl implements TelephoneService {
 
@@ -25,7 +27,7 @@ public class TelephoneServiceImpl implements TelephoneService {
     @Override
     public Telephone findTelephoneById(long id) {
         return telephonerepos.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Telephone with id " + id + " not found!"));
+                new ResourceNotFoundException("Telephone with id " + id + " not found!"));
     }
 
     @Override
@@ -40,7 +42,7 @@ public class TelephoneServiceImpl implements TelephoneService {
             telephone.setPhonenumber(phonenumber);
             return telephonerepos.save(telephone);
         } else {
-            throw new EntityNotFoundException("Telephone with id " + phoneid + " not found!");
+            throw new ResourceNotFoundException("Telephone with id " + phoneid + " not found!");
         }
     }
 
@@ -49,7 +51,7 @@ public class TelephoneServiceImpl implements TelephoneService {
         if (telephonerepos.findById(id).isPresent()) {
             telephonerepos.deleteById(id);
         } else {
-            throw new EntityNotFoundException("Telephone with id " + id + " not found!");
+            throw new ResourceNotFoundException("Telephone with id " + id + " not found!");
         }
     }
 }

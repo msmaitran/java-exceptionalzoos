@@ -2,6 +2,8 @@ package com.lambdaschool.zoos.controllers;
 
 import com.lambdaschool.zoos.models.Zoo;
 import com.lambdaschool.zoos.services.ZooService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -17,26 +20,33 @@ import java.util.List;
 @RequestMapping("/zoos")
 public class ZooController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ZooController.class);
+
     @Autowired
     ZooService zooService;
 
     @GetMapping(value = "/zoos",
                 produces = {"application/json"})
-    public ResponseEntity<?> listAllZoos() {
+    public ResponseEntity<?> listAllZoos(HttpServletRequest request) {
+        logger.trace(request.getMethod().toUpperCase() + " " + request.getRequestURI() + " accessed");
         List<Zoo> myZoos = zooService.findAll();
         return new ResponseEntity<>(myZoos, HttpStatus.OK);
     }
 
     @GetMapping(value = "/zoo/namelike/{name}",
                 produces = {"application/json"})
-    public ResponseEntity<?> getZooByNameLike(@PathVariable String name) {
+    public ResponseEntity<?> getZooByNameLike(@PathVariable String name,
+                                              HttpServletRequest request) {
+        logger.trace(request.getMethod().toUpperCase() + " " + request.getRequestURI() + " accessed");
         List<Zoo> myZoos = zooService.findByNameContainingIgnoringCase(name);
         return new ResponseEntity<>(myZoos, HttpStatus.OK);
     }
 
     @GetMapping(value = "/zoo/{zooid}",
                 produces = {"application/json"})
-    public ResponseEntity<?> getZooById(@PathVariable long zooid) {
+    public ResponseEntity<?> getZooById(@PathVariable long zooid,
+                                        HttpServletRequest request) {
+        logger.trace(request.getMethod().toUpperCase() + " " + request.getRequestURI() + " accessed");
         Zoo myZoo = zooService.findZooById(zooid);
         return new ResponseEntity<>(myZoo, HttpStatus.OK);
     }
